@@ -31,8 +31,14 @@ namespace Estranged.Workshop
             query.OnResult = x => waitCancellation.Cancel();
             query.Run();
 
-            await Task.Delay(-1, compositeCancellation.Token)
-                .ContinueWith(x => x, TaskContinuationOptions.OnlyOnCanceled);
+            try
+            {
+                await Task.Delay(-1, compositeCancellation.Token);
+            }
+            catch when (waitCancellation.IsCancellationRequested)
+            {
+                // Got the query result
+            }
 
             return query.Items;
         }

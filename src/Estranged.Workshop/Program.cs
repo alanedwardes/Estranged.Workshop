@@ -10,6 +10,8 @@ namespace Estranged.Workshop
 {
     internal sealed class Program
     {
+        public static CancellationTokenSource PrimaryCancellationSource = new CancellationTokenSource();
+
         public static void Main(string[] args)
         {
             const string banner = " Estranged: Act I Workshop Tool ";
@@ -22,12 +24,13 @@ namespace Estranged.Workshop
 
             var arguments = Parser.Default.ParseArguments<MountOptions, UploadOptions>(args);
 
-            var cancellationSource = new CancellationTokenSource();
-
             Console.CancelKeyPress += (sender, ev) =>
             {
                 ev.Cancel = true;
-                cancellationSource.Cancel();
+                PrimaryCancellationSource.Cancel();
+
+                Console.WriteLine();
+                ConsoleHelpers.WriteLine("Cancelling...", ConsoleColor.Yellow);
             };
 
             var services = new ServiceCollection()
@@ -38,18 +41,45 @@ namespace Estranged.Workshop
                 .AddSingleton<BrowserOpener>();
 
             using (var steam = new Client(Constants.AppId))
-            using (Task.Run(() => TickSteamClient(steam, cancellationSource.Token)))
+            using (var tick = Task.Run(() => TickSteamClient(steam, PrimaryCancellationSource.Token)))
             using (var provider = services.AddSingleton(steam).BuildServiceProvider())
             {
                 // Add newlines after the Steam SDK spam
                 Console.WriteLine();
 
-                arguments.MapResult((MountOptions options) => Mount(provider, options, cancellationSource.Token),
-                                    (UploadOptions options) => Upload(provider, options, cancellationSource.Token),
-                                    errors => 1);
+                if (steam.IsValid)
+                {
+                    try
+                    {
+                        arguments.MapResult((MountOptions options) => Mount(provider, options, PrimaryCancellationSource.Token),
+                        (UploadOptions options) => Upload(provider, options, PrimaryCancellationSource.Token),
+                        errors => 1);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected
+                    }
+                }
+                else
+                {
+                    ConsoleHelpers.FatalError("Failed to connect to Steam.");
+                }
 
-                cancellationSource.Cancel();
+                PrimaryCancellationSource.Cancel();
+
+                try
+                {
+                    tick.GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected
+                }
             }
+
+            Console.WriteLine();
+            Console.WriteLine("Press enter to exit...");
+            Console.ReadLine();
         }
 
         private static async Task TickSteamClient(Client steam, CancellationToken token)
