@@ -57,6 +57,7 @@ namespace Estranged.Workshop
 
             if (editor.NeedToAgreeToWorkshopLegal)
             {
+                Console.WriteLine();
                 ConsoleHelpers.WriteLine("Please agree to the Steam Workshop legal agreement.", ConsoleColor.Yellow);
                 _browserOpener.OpenBrowser("http://steamcommunity.com/sharedfiles/workshoplegalagreement");
             }

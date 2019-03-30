@@ -15,9 +15,9 @@ namespace Estranged.Workshop
             const string banner = " Estranged: Act I Workshop Tool ";
             var separator = new string('=', banner.Length);
 
-            Console.WriteLine(separator);
+            ConsoleHelpers.WriteLine(separator, ConsoleColor.DarkGray);
             Console.WriteLine(banner);
-            Console.WriteLine(separator);
+            ConsoleHelpers.WriteLine(separator, ConsoleColor.DarkGray);
             Console.WriteLine();
 
             var arguments = Parser.Default.ParseArguments<SynchroniseOptions, UploadOptions>(args);
@@ -41,7 +41,8 @@ namespace Estranged.Workshop
             using (Task.Run(() => TickSteamClient(steam, cancellationSource.Token)))
             using (var provider = services.AddSingleton(steam).BuildServiceProvider())
             {
-                Console.WriteLine(); // Add a newline after the Steam SDK spam
+                // Add newlines after the Steam SDK spam
+                Console.WriteLine();
 
                 arguments.MapResult((SynchroniseOptions options) => Synchronise(provider, options, cancellationSource.Token),
                                     (UploadOptions options) => Upload(provider, options, cancellationSource.Token),
@@ -62,8 +63,6 @@ namespace Estranged.Workshop
 
         private static int Synchronise(IServiceProvider provider, SynchroniseOptions options, CancellationToken token)
         {
-            Console.WriteLine("Mounting downloaded workshop items...");
-
             provider.GetRequiredService<WorkshopSynchroniser>()
                     .Synchronise(token)
                     .GetAwaiter()

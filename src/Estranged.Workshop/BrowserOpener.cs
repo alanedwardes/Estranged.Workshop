@@ -8,7 +8,7 @@ namespace Estranged.Workshop
     {
         public void OpenBrowser(string url)
         {
-            Console.WriteLine($"See: {url}");
+            ConsoleHelpers.WriteLine($"See: {url}", ConsoleColor.Cyan);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
