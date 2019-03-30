@@ -5,18 +5,18 @@ using System.Threading.Tasks;
 
 namespace Estranged.Workshop
 {
-    internal sealed class WorkshopSynchroniser
+    internal sealed class WorkshopMounter
     {
         private readonly WorkshopRepository _workshopRepository;
         private readonly GameInfoRepository _gameInfoRepository;
 
-        public WorkshopSynchroniser(WorkshopRepository repository, GameInfoRepository gameInfoRepository)
+        public WorkshopMounter(WorkshopRepository repository, GameInfoRepository gameInfoRepository)
         {
             _workshopRepository = repository;
             _gameInfoRepository = gameInfoRepository;
         }
 
-        public async Task Synchronise(CancellationToken token)
+        public async Task Mount(CancellationToken token)
         {
             Console.WriteLine("Mounting downloaded workshop items...");
 

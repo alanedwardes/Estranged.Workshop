@@ -20,7 +20,7 @@ namespace Estranged.Workshop
             ConsoleHelpers.WriteLine(separator, ConsoleColor.DarkGray);
             Console.WriteLine();
 
-            var arguments = Parser.Default.ParseArguments<SynchroniseOptions, UploadOptions>(args);
+            var arguments = Parser.Default.ParseArguments<MountOptions, UploadOptions>(args);
 
             var cancellationSource = new CancellationTokenSource();
 
@@ -31,7 +31,7 @@ namespace Estranged.Workshop
             };
 
             var services = new ServiceCollection()
-                .AddSingleton<WorkshopSynchroniser>()
+                .AddSingleton<WorkshopMounter>()
                 .AddSingleton<WorkshopRepository>()
                 .AddSingleton<WorkshopUploader>()
                 .AddSingleton<GameInfoRepository>()
@@ -44,7 +44,7 @@ namespace Estranged.Workshop
                 // Add newlines after the Steam SDK spam
                 Console.WriteLine();
 
-                arguments.MapResult((SynchroniseOptions options) => Synchronise(provider, options, cancellationSource.Token),
+                arguments.MapResult((MountOptions options) => Mount(provider, options, cancellationSource.Token),
                                     (UploadOptions options) => Upload(provider, options, cancellationSource.Token),
                                     errors => 1);
 
@@ -61,10 +61,10 @@ namespace Estranged.Workshop
             }
         }
 
-        private static int Synchronise(IServiceProvider provider, SynchroniseOptions options, CancellationToken token)
+        private static int Mount(IServiceProvider provider, MountOptions options, CancellationToken token)
         {
-            provider.GetRequiredService<WorkshopSynchroniser>()
-                    .Synchronise(token)
+            provider.GetRequiredService<WorkshopMounter>()
+                    .Mount(token)
                     .GetAwaiter()
                     .GetResult();
 
