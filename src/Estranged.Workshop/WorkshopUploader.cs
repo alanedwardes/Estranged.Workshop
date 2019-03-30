@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using static Facepunch.Steamworks.Workshop;
 
 namespace Estranged.Workshop
 {
@@ -16,15 +17,27 @@ namespace Estranged.Workshop
             _browserOpener = browserOpener;
         }
 
-        internal async Task Upload(DirectoryInfo uploadDirectory, CancellationToken token)
+        internal async Task Upload(DirectoryInfo uploadDirectory, ulong? existingItemId, CancellationToken token)
         {
             if (!uploadDirectory.Exists)
             {
                 ConsoleHelpers.FatalError($"Directory doesn't exist: {uploadDirectory.FullName}");
             }
 
-            var item = await _workshopRepository.CreateItem(uploadDirectory, token);
+            Item existingItem = null;
+            if (existingItemId.HasValue)
+            {
+                existingItem = await _workshopRepository.GetItem(existingItemId.Value, token);
+                if (existingItem == null)
+                {
+                    ConsoleHelpers.FatalError($"Item {existingItemId.Value} was not found.");
+                }
 
+                Console.WriteLine();
+                Console.WriteLine($"Updating existing item '{existingItem.Title}'");
+            }
+
+            var item = await _workshopRepository.UpdateItem(existingItem, uploadDirectory, token);
             if (item.Error == null)
             {
                 Console.WriteLine();

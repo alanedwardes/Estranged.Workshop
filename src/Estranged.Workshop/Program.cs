@@ -104,7 +104,7 @@ namespace Estranged.Workshop
         private static int Upload(IServiceProvider provider, UploadOptions options, CancellationToken token)
         {
             provider.GetRequiredService<WorkshopUploader>()
-                    .Upload(options.UploadDirectory, token)
+                    .Upload(options.UploadDirectory, options.ExistingItem, token)
                     .GetAwaiter()
                     .GetResult();
 
