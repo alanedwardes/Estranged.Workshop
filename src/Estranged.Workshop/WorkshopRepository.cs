@@ -77,6 +77,8 @@ namespace Estranged.Workshop
             if (item == null)
             {
                 editor = _client.Workshop.CreateItem(ItemType.Community);
+                editor.Title = "New Item";
+                editor.Description = "Edit me";
             }
             else
             {

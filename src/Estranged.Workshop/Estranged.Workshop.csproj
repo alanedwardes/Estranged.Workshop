@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>estranged-workshop</AssemblyName>
+    <Authors>Alan Edwardes</Authors>
+    <Product>Estranged: Act I Workshop Tool</Product>
   </PropertyGroup>
 
   <ItemGroup>

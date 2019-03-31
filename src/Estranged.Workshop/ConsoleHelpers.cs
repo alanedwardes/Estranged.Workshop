@@ -13,14 +13,14 @@ namespace Estranged.Workshop
         {
             Console.ForegroundColor = color;
             Console.WriteLine("  " + line);
-            ResetColors();
+            OverrideColors();
         }
 
         public static void Write(string text, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.ForegroundColor = color;
             Console.Write(text);
-            ResetColors();
+            OverrideColors();
         }
 
         public static void FatalError(string error)
@@ -34,7 +34,7 @@ namespace Estranged.Workshop
             Program.PrimaryCancellationSource.Cancel();
         }
 
-        public static void ResetColors()
+        public static void OverrideColors()
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.BackgroundColor = ConsoleColor.Black;

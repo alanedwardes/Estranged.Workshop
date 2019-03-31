@@ -15,7 +15,7 @@ namespace Estranged.Workshop
 
         public static void Main(string[] args)
         {
-            ConsoleHelpers.ResetColors();
+            ConsoleHelpers.OverrideColors();
 
             ConsoleHelpers.WriteLine(@" ___ ___ _____ ___    _   _  _  ___ ___ ___  ");
             ConsoleHelpers.WriteLine(@"| __/ __|_   _| _ \  /_\ | \| |/ __| __|   \ ");
@@ -26,7 +26,9 @@ namespace Estranged.Workshop
             ConsoleHelpers.WriteLine("ACT I WORKSHOP TOOL", ConsoleColor.White);
             ConsoleHelpers.WriteLine();
 
+            Console.ForegroundColor = ConsoleColor.White;
             var arguments = Parser.Default.ParseArguments<MountOptions, UploadOptions>(args);
+            ConsoleHelpers.OverrideColors();
 
             Console.CancelKeyPress += (sender, ev) =>
             {
