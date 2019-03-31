@@ -85,14 +85,16 @@ namespace Estranged.Workshop
                 editor = _client.Workshop.EditItem(item.Id);
             }
 
-            var thumbnail = uploadDirectory.EnumerateFiles()
-                .Where(x => x.Extension == ".png" || x.Extension == ".jpeg" || x.Extension == ".jpg")
+            var previewExtensions = new[] { ".png", ".jpeg", ".jpg" };
+
+            var preview = uploadDirectory.EnumerateFiles()
+                .Where(x => previewExtensions.Contains(x.Extension.ToLower()))
                 .Where(x => x.Length < 1024 * 1024)
                 .FirstOrDefault();
 
             editor.WorkshopUploadAppId = _client.AppId;
             editor.Folder = uploadDirectory.FullName;
-            editor.PreviewImage = thumbnail?.FullName;
+            editor.PreviewImage = preview?.FullName;
             editor.Publish();
 
             ConsoleHelpers.WriteLine();
