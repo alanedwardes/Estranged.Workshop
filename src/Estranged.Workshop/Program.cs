@@ -3,6 +3,7 @@ using Estranged.Workshop.Options;
 using Facepunch.Steamworks;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -76,10 +77,6 @@ namespace Estranged.Workshop
                     // Expected
                 }
             }
-
-            Console.WriteLine();
-            Console.WriteLine("Press enter to exit...");
-            Console.ReadLine();
         }
 
         private static async Task TickSteamClient(Client steam, CancellationToken token)
@@ -98,11 +95,34 @@ namespace Estranged.Workshop
                     .GetAwaiter()
                     .GetResult();
 
+            Console.WriteLine();
+            Console.WriteLine("Press enter to exit...");
+            Console.ReadLine();
             return 0;
         }
 
         private static int Upload(IServiceProvider provider, UploadOptions options, CancellationToken token)
         {
+            if (options.Interactive)
+            {
+                Console.WriteLine("Enter the numeric file ID or workshop item URL to update, followed by <enter>: ");
+                Console.WriteLine();
+
+                var input = Console.ReadLine().Trim();
+                if (ulong.TryParse(input, out var rawFileId))
+                {
+                    options.ExistingItem = rawFileId;
+                }
+                else if (ulong.TryParse(Regex.Match(input, @"\?id=(?<fileId>[0-9]*)").Groups["fileId"].Value, out var urlFileId))
+                {
+                    options.ExistingItem = urlFileId;
+                }
+                else
+                {
+                    ConsoleHelpers.FatalError($"Unable to find workshop item ID in '{input}'");
+                }
+            }
+
             provider.GetRequiredService<WorkshopUploader>()
                     .Upload(options.UploadDirectory, options.ExistingItem, token)
                     .GetAwaiter()

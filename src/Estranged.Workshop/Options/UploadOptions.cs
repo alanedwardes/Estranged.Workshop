@@ -11,5 +11,8 @@ namespace Estranged.Workshop.Options
 
         [Option('f', "fileId", HelpText = "An existing file ID to update.")]
         public ulong? ExistingItem { get; set; }
+
+        [Option('i', "interactive", HelpText = "Use interactive mode for file ID.")]
+        public bool Interactive { get; set; }
     }
 }
