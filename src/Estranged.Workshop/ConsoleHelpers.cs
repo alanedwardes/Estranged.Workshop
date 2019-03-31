@@ -4,11 +4,23 @@ namespace Estranged.Workshop
 {
     internal static class ConsoleHelpers
     {
-        public static void WriteLine(string line, ConsoleColor color)
+        public static void WriteLine()
+        {
+            Console.WriteLine();
+        }
+
+        public static void WriteLine(string line, ConsoleColor color = ConsoleColor.Gray)
         {
             Console.ForegroundColor = color;
-            Console.WriteLine(line);
-            Console.ResetColor();
+            Console.WriteLine("  " + line);
+            ResetColors();
+        }
+
+        public static void Write(string text, ConsoleColor color = ConsoleColor.Gray)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            ResetColors();
         }
 
         public static void FatalError(string error)
@@ -20,6 +32,12 @@ namespace Estranged.Workshop
             Console.WriteLine();
             ConsoleHelpers.WriteLine($"If you keep seeing this error, you may want to report it on https://steamcommunity.com/app/{Constants.AppId}/discussions/ or https://discord.gg/estranged", ConsoleColor.Red);
             Program.PrimaryCancellationSource.Cancel();
+        }
+
+        public static void ResetColors()
+        {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.BackgroundColor = ConsoleColor.Black;
         }
     }
 }

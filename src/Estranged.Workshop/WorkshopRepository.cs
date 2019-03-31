@@ -93,8 +93,8 @@ namespace Estranged.Workshop
             editor.PreviewImage = thumbnail?.FullName;
             editor.Publish();
 
-            Console.WriteLine();
-            Console.WriteLine($"Publishing workshop item... this might take a little while.");
+            ConsoleHelpers.WriteLine();
+            ConsoleHelpers.WriteLine($"Publishing workshop item... this might take a little while.");
 
             while (editor.Publishing)
             {
@@ -103,7 +103,7 @@ namespace Estranged.Workshop
 
             if (editor.NeedToAgreeToWorkshopLegal)
             {
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("Please agree to the Steam Workshop legal agreement.", ConsoleColor.Yellow);
                 _browserOpener.OpenBrowser("http://steamcommunity.com/sharedfiles/workshoplegalagreement");
             }

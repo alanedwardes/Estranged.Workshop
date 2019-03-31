@@ -33,20 +33,20 @@ namespace Estranged.Workshop
                     ConsoleHelpers.FatalError($"Item {existingItemId.Value} was not found.");
                 }
 
-                Console.WriteLine();
-                Console.WriteLine($"Updating existing item '{existingItem.Title}'");
+                ConsoleHelpers.WriteLine();
+                ConsoleHelpers.WriteLine($"Updating existing item '{existingItem.Title}'");
             }
 
             var item = await _workshopRepository.UpdateItem(existingItem, uploadDirectory, token);
             if (item.Error == null)
             {
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("Item uploaded successfully!", ConsoleColor.Green);
 
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
                 _browserOpener.OpenBrowser($"https://steamcommunity.com/sharedfiles/filedetails/?id={item.Id}");
 
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("You can edit the title, description, preview images and more from the item page.", ConsoleColor.Green);
             }
             else

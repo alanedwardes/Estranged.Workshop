@@ -15,13 +15,16 @@ namespace Estranged.Workshop
 
         public static void Main(string[] args)
         {
-            const string banner = " Estranged: Act I Workshop Tool ";
-            var separator = new string('=', banner.Length);
+            ConsoleHelpers.ResetColors();
 
-            ConsoleHelpers.WriteLine(separator, ConsoleColor.DarkGray);
-            Console.WriteLine(banner);
-            ConsoleHelpers.WriteLine(separator, ConsoleColor.DarkGray);
-            Console.WriteLine();
+            ConsoleHelpers.WriteLine(@" ___ ___ _____ ___    _   _  _  ___ ___ ___  ");
+            ConsoleHelpers.WriteLine(@"| __/ __|_   _| _ \  /_\ | \| |/ __| __|   \ ");
+            ConsoleHelpers.WriteLine(@"| _|\__ \ | | |   / / _ \| .` | (_ | _|| |) |");
+            ConsoleHelpers.WriteLine(@"|___|___/ |_| |_|_\/_/ \_\_|\_|\___|___|___/ ");
+            ConsoleHelpers.WriteLine();
+
+            ConsoleHelpers.WriteLine("ACT I WORKSHOP TOOL", ConsoleColor.White);
+            ConsoleHelpers.WriteLine();
 
             var arguments = Parser.Default.ParseArguments<MountOptions, UploadOptions>(args);
 
@@ -30,7 +33,7 @@ namespace Estranged.Workshop
                 ev.Cancel = true;
                 PrimaryCancellationSource.Cancel();
 
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("Cancelling...", ConsoleColor.Yellow);
             };
 
@@ -46,7 +49,7 @@ namespace Estranged.Workshop
             using (var provider = services.AddSingleton(steam).BuildServiceProvider())
             {
                 // Add newlines after the Steam SDK spam
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine();
 
                 if (steam.IsValid)
                 {
@@ -95,8 +98,8 @@ namespace Estranged.Workshop
                     .GetAwaiter()
                     .GetResult();
 
-            Console.WriteLine();
-            Console.WriteLine("Press enter to exit...");
+            ConsoleHelpers.WriteLine();
+            ConsoleHelpers.WriteLine("Press enter to exit...");
             Console.ReadLine();
             return 0;
         }
@@ -105,8 +108,8 @@ namespace Estranged.Workshop
         {
             if (options.Interactive)
             {
-                Console.WriteLine("Enter the numeric file ID or workshop item URL to update, followed by <enter>: ");
-                Console.WriteLine();
+                ConsoleHelpers.WriteLine("Enter the numeric file ID or workshop item URL to update, followed by <enter>: ");
+                ConsoleHelpers.WriteLine();
 
                 var input = Console.ReadLine().Trim();
                 if (ulong.TryParse(input, out var rawFileId))

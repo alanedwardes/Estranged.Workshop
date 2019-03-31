@@ -23,30 +23,48 @@ namespace Estranged.Workshop
             var gameInfo = _gameInfoRepository.FindGameInfo();
 
             var items = await _workshopRepository.GetUserSubscribedItems(token);
+            if (items.Length == 0)
+            {
+                ConsoleHelpers.WriteLine($"No workshop items found. To subscribe to items, head over to the workshop!", ConsoleColor.Yellow);
+                ConsoleHelpers.WriteLine();
+                ConsoleHelpers.WriteLine($"https://steamcommunity.com/app/{Constants.AppId}/workshop/", ConsoleColor.Blue);
+                return;
+            }
 
             var itemsToMount = new List<Item>();
 
-            Console.WriteLine($"Found {items.Length} workshop item(s) in total:");
+            ConsoleHelpers.WriteLine($"Found {items.Length} workshop item(s) in total:", ConsoleColor.Yellow);
+            ConsoleHelpers.WriteLine();
             foreach (var item in items)
             {
-                Console.Write($"* {item.Title}");
+                ConsoleHelpers.Write("\t- ", ConsoleColor.DarkGray);
+                ConsoleHelpers.Write(item.Title, ConsoleColor.White);
                 if (item.Installed)
                 {
-                    Console.Write(" (will be mounted)");
+                    ConsoleHelpers.Write(" (will be mounted)", ConsoleColor.Gray);
                     itemsToMount.Add(item);
                 }
-                Console.WriteLine();
+                else
+                {
+                    ConsoleHelpers.Write(" (won't be mounted - not installed)", ConsoleColor.DarkGray);
+                }
+                ConsoleHelpers.WriteLine();
             }
-
-            Console.WriteLine();
-            Console.WriteLine($"Mounting {string.Join(" ,", itemsToMount.Select(x => x.Title))}");
 
             var itemDirectories = items.Where(x => x.Installed).Select(x => x.Directory).ToArray();
 
             await _gameInfoRepository.SetWorkshopSearchPaths(gameInfo, itemDirectories);
 
-            Console.WriteLine();
-            ConsoleHelpers.WriteLine($"Mounted {itemDirectories.Length} workshop items!", ConsoleColor.Green);
+            ConsoleHelpers.WriteLine();
+
+            if (itemsToMount.Count > 0)
+            {
+                ConsoleHelpers.WriteLine($"You can now run the game and play your new content!", ConsoleColor.Green);
+            }
+            else
+            {
+                ConsoleHelpers.WriteLine($"No items found to mount. Looks like they are still installing.", ConsoleColor.Yellow);
+            }
         }
     }
 }
