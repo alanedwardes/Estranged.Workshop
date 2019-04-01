@@ -100,9 +100,10 @@ namespace Estranged.Workshop
                     .GetAwaiter()
                     .GetResult();
 
-            ConsoleHelpers.WriteLine();
-            ConsoleHelpers.WriteLine("Press enter to exit...");
-            Console.ReadLine();
+            ConsoleHelpers.WaitBeforeExiting(TimeSpan.FromSeconds(5), PrimaryCancellationSource.Token)
+                .GetAwaiter()
+                .GetResult();
+
             return 0;
         }
 
@@ -132,6 +133,10 @@ namespace Estranged.Workshop
                     .Upload(options.UploadDirectory, options.ExistingItem, token)
                     .GetAwaiter()
                     .GetResult();
+
+            ConsoleHelpers.WaitBeforeExiting(TimeSpan.FromSeconds(10), PrimaryCancellationSource.Token)
+                .GetAwaiter()
+                .GetResult();
 
             return 0;
         }
