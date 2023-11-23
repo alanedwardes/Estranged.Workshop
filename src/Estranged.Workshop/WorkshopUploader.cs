@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Steamworks.Ugc;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using static Facepunch.Steamworks.Workshop;
 
 namespace Estranged.Workshop
 {
@@ -24,7 +24,7 @@ namespace Estranged.Workshop
                 ConsoleHelpers.FatalError($"Directory doesn't exist: {uploadDirectory.FullName}");
             }
 
-            Item existingItem = null;
+            Item? existingItem = null;
             if (existingItemId.HasValue)
             {
                 existingItem = await _workshopRepository.GetItem(existingItemId.Value, token);
@@ -34,24 +34,24 @@ namespace Estranged.Workshop
                 }
 
                 ConsoleHelpers.WriteLine();
-                ConsoleHelpers.WriteLine($"Updating existing item '{existingItem.Title}'");
+                ConsoleHelpers.WriteLine($"Updating existing item '{existingItem.Value.Title}'");
             }
 
             var item = await _workshopRepository.UpdateItem(existingItem, uploadDirectory, token);
-            if (item.Error == null)
+            if (item.Success)
             {
                 ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("Item uploaded successfully!", ConsoleColor.Green);
 
                 ConsoleHelpers.WriteLine();
-                _browserOpener.OpenBrowser($"https://steamcommunity.com/sharedfiles/filedetails/?id={item.Id}");
+                _browserOpener.OpenBrowser($"https://steamcommunity.com/sharedfiles/filedetails/?id={item.FileId}");
 
                 ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("You can edit the title, description, preview images and more from the item page.", ConsoleColor.Green);
             }
             else
             {
-                ConsoleHelpers.FatalError($"Item upload failed. The error from Steam was: {item.Error}");
+                ConsoleHelpers.FatalError($"Item upload failed. The error from Steam was: {item.Result}");
             }
         }
     }

@@ -1,11 +1,10 @@
 ﻿using CommandLine;
 using Estranged.Workshop.Options;
-using Facepunch.Steamworks;
 using Microsoft.Extensions.DependencyInjection;
+using Steamworks;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Estranged.Workshop
 {
@@ -46,51 +45,32 @@ namespace Estranged.Workshop
                 .AddSingleton<GameInfoRepository>()
                 .AddSingleton<BrowserOpener>();
 
-            using (var steam = new Client(Constants.AppId))
-            using (var tick = Task.Run(() => TickSteamClient(steam, PrimaryCancellationSource.Token)))
-            using (var provider = services.AddSingleton(steam).BuildServiceProvider())
+            SteamClient.Init(Constants.AppId);
+
+            using var provider = services.BuildServiceProvider();
+
+            // Add newlines after the Steam SDK spam
+            ConsoleHelpers.WriteLine();
+
+            if (SteamClient.IsValid)
             {
-                // Add newlines after the Steam SDK spam
-                ConsoleHelpers.WriteLine();
-
-                if (steam.IsValid)
-                {
-                    try
-                    {
-                        arguments.MapResult((MountOptions options) => Mount(provider, options, PrimaryCancellationSource.Token),
-                        (UploadOptions options) => Upload(provider, options, PrimaryCancellationSource.Token),
-                        errors => 1);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Expected
-                    }
-                }
-                else
-                {
-                    ConsoleHelpers.FatalError("Failed to connect to Steam.");
-                }
-
-                PrimaryCancellationSource.Cancel();
-
                 try
                 {
-                    tick.GetAwaiter().GetResult();
+                    arguments.MapResult((MountOptions options) => Mount(provider, options, PrimaryCancellationSource.Token),
+                    (UploadOptions options) => Upload(provider, options, PrimaryCancellationSource.Token),
+                    errors => 1);
                 }
                 catch (OperationCanceledException)
                 {
                     // Expected
                 }
             }
-        }
-
-        private static async Task TickSteamClient(Client steam, CancellationToken token)
-        {
-            while (!token.IsCancellationRequested)
+            else
             {
-                steam.Update();
-                await Task.Delay(TimeSpan.FromMilliseconds(20), token);
+                ConsoleHelpers.FatalError("Failed to connect to Steam.");
             }
+
+            PrimaryCancellationSource.Cancel();
         }
 
         private static int Mount(IServiceProvider provider, MountOptions options, CancellationToken token)

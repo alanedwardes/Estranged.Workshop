@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Steamworks.Ugc;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static Facepunch.Steamworks.Workshop;
 
 namespace Estranged.Workshop
 {
@@ -39,7 +40,7 @@ namespace Estranged.Workshop
             {
                 ConsoleHelpers.Write("\t- ", ConsoleColor.DarkGray);
                 ConsoleHelpers.Write(item.Title, ConsoleColor.White);
-                if (item.Installed)
+                if (item.IsInstalled)
                 {
                     ConsoleHelpers.Write(" (will be mounted)", ConsoleColor.Gray);
                     itemsToMount.Add(item);
@@ -51,7 +52,7 @@ namespace Estranged.Workshop
                 ConsoleHelpers.WriteLine();
             }
 
-            var itemDirectories = items.Where(x => x.Installed).Select(x => x.Directory).ToArray();
+            var itemDirectories = items.Where(x => x.IsInstalled).Select(x => new DirectoryInfo(x.Directory)).ToArray();
 
             await _gameInfoRepository.SetWorkshopSearchPaths(gameInfo, itemDirectories);
 

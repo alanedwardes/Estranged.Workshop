@@ -1,88 +1,52 @@
-﻿using Facepunch.Steamworks;
+﻿using Steamworks;
+using Steamworks.Ugc;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static Facepunch.Steamworks.Workshop;
 
 namespace Estranged.Workshop
 {
     internal sealed class WorkshopRepository
     {
-        private readonly Client _client;
         private readonly BrowserOpener _browserOpener;
 
-        public WorkshopRepository(Client client, BrowserOpener browserOpener)
+        public WorkshopRepository(BrowserOpener browserOpener)
         {
-            _client = client;
             _browserOpener = browserOpener;
         }
 
         public async Task<Item[]> GetUserSubscribedItems(CancellationToken token)
         {
-            var waitCancellation = new CancellationTokenSource();
+            var query = new Query().WhereUserSubscribed();
 
-            var compositeCancellation = CancellationTokenSource.CreateLinkedTokenSource(waitCancellation.Token, token);
+            var result = await query.GetPageAsync(1);
 
-            var query = _client.Workshop.CreateQuery();
-            query.UserId = _client.SteamId;
-            query.UploaderAppId = _client.AppId;
-            query.UserQueryType = UserQueryType.Subscribed;
-            query.OnResult = x => waitCancellation.Cancel();
-            query.Run();
-
-            try
-            {
-                await Task.Delay(-1, compositeCancellation.Token);
-            }
-            catch when (waitCancellation.IsCancellationRequested)
-            {
-                // Got the query result
-            }
-
-            return query.Items;
+            return result.Value.Entries.ToArray();
         }
 
         public async Task<Item> GetItem(ulong itemId, CancellationToken token)
         {
-            var waitCancellation = new CancellationTokenSource();
+            var query = new Query().WhereUserSubscribed().WithFileId(itemId);
 
-            var compositeCancellation = CancellationTokenSource.CreateLinkedTokenSource(waitCancellation.Token, token);
+            var result = await query.GetPageAsync(1);
 
-            var query = _client.Workshop.CreateQuery();
-            query.UserId = _client.SteamId;
-            query.UploaderAppId = _client.AppId;
-            query.FileId = new List<ulong> { { itemId } };
-            query.UserQueryType = UserQueryType.Followed;
-            query.OnResult = x => waitCancellation.Cancel();
-            query.Run();
-
-            try
-            {
-                await Task.Delay(-1, compositeCancellation.Token);
-            }
-            catch when (waitCancellation.IsCancellationRequested)
-            {
-                // Got the query result
-            }
-
-            return query.Items.SingleOrDefault();
+            return result.Value.Entries.Single();
         }
 
-        public async Task<Editor> UpdateItem(Item item, DirectoryInfo uploadDirectory, CancellationToken token)
+        public async Task<PublishResult> UpdateItem(Item? item, DirectoryInfo uploadDirectory, CancellationToken token)
         {
             Editor editor;
-            if (item == null)
+            if (item.HasValue)
             {
-                editor = _client.Workshop.CreateItem(ItemType.Community);
-                editor.Title = "New Item";
-                editor.Description = "Edit me";
+                editor = new Editor(item.Value.Id);
             }
             else
             {
-                editor = _client.Workshop.EditItem(item.Id);
+                editor = Editor.NewCommunityFile;
+                editor.WithTitle("New Item");
+                editor.WithDescription("Edit me");
             }
 
             var previewExtensions = new[] { ".png", ".jpeg", ".jpg" };
@@ -92,27 +56,22 @@ namespace Estranged.Workshop
                 .Where(x => x.Length < 1024 * 1024)
                 .FirstOrDefault();
 
-            editor.WorkshopUploadAppId = _client.AppId;
-            editor.Folder = uploadDirectory.FullName;
-            editor.PreviewImage = preview?.FullName;
-            editor.Publish();
+            editor.ForAppId(SteamClient.AppId);
+            editor.WithContent(uploadDirectory);
+            editor.WithPreviewFile(preview?.FullName);
 
             ConsoleHelpers.WriteLine();
             ConsoleHelpers.WriteLine($"Publishing workshop item... this might take a little while.");
 
-            while (editor.Publishing)
-            {
-                await Task.Delay(TimeSpan.FromMilliseconds(20), token);
-            }
-
-            if (editor.NeedToAgreeToWorkshopLegal)
+            var result = await editor.SubmitAsync();
+            if (result.NeedsWorkshopAgreement)
             {
                 ConsoleHelpers.WriteLine();
                 ConsoleHelpers.WriteLine("Please agree to the Steam Workshop legal agreement.", ConsoleColor.Yellow);
                 _browserOpener.OpenBrowser("http://steamcommunity.com/sharedfiles/workshoplegalagreement");
             }
 
-            return editor;
+            return result;
         }
     }
 }

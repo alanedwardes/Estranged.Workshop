@@ -34,9 +34,9 @@ namespace Estranged.Workshop
             WriteLine(error, ConsoleColor.Red);
 
             Console.WriteLine();
-            ConsoleHelpers.WriteLine($"If you keep seeing this error, you may want to report it:", ConsoleColor.Yellow);
-            ConsoleHelpers.WriteLine($"- https://steamcommunity.com/app/{Constants.AppId}/discussions/", ConsoleColor.Yellow);
-            ConsoleHelpers.WriteLine($"- https://discord.gg/estranged", ConsoleColor.Yellow);
+            WriteLine($"If you keep seeing this error, you may want to report it:", ConsoleColor.Yellow);
+            WriteLine($"- https://steamcommunity.com/app/{Constants.AppId}/discussions/", ConsoleColor.Yellow);
+            WriteLine($"- https://discord.gg/estranged", ConsoleColor.Yellow);
 
             Program.PrimaryCancellationSource.Cancel();
 

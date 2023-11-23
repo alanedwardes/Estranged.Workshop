@@ -1,6 +1,6 @@
-﻿using Facepunch.Steamworks;
-using Gameloop.Vdf;
+﻿using Gameloop.Vdf;
 using Gameloop.Vdf.Linq;
+using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,13 +10,6 @@ namespace Estranged.Workshop
 {
     internal sealed class GameInfoRepository
     {
-        private readonly Client _steam;
-
-        public GameInfoRepository(Client steam)
-        {
-            _steam = steam;
-        }
-
         public async Task SetWorkshopSearchPaths(FileInfo gameInfo, IEnumerable<DirectoryInfo> directories)
         {
             // Read the raw gameinfo.txt
@@ -24,13 +17,13 @@ namespace Estranged.Workshop
 
             VProperty gameInfoVdf = VdfConvert.Deserialize(rawVdf);
 
-            var searchPathSection = (VObject)gameInfoVdf.Value["FileSystem"]["SearchPaths"];
+            var searchPathSection = gameInfoVdf.Value["FileSystem"]["SearchPaths"];
 
             // Hack - the underlying type is a List<VProperty>
-            var searchPaths = (List<VProperty>)searchPathSection.Children();
+            var searchPaths = (List<VToken>)searchPathSection.Children();
 
             // Remove all existing workshop entries
-            searchPaths.RemoveAll(x => x.Key == "game+workshop");
+            searchPaths.RemoveAll(x => x is VProperty property && property.Key == "game+workshop");
 
             foreach (var directory in directories)
             {
@@ -44,7 +37,7 @@ namespace Estranged.Workshop
 
         public FileInfo FindGameInfo()
         {
-            var gameInfo = new FileInfo(Path.Combine(_steam.InstallFolder.FullName, "estrangedact1", "gameinfo.txt"));
+            var gameInfo = new FileInfo(Path.Combine(SteamApps.AppInstallDir(), "estrangedact1", "gameinfo.txt"));
             return gameInfo.Exists ? gameInfo : throw new InvalidOperationException($"gameinfo.txt not found in {gameInfo.FullName}");
         }
     }
