@@ -6,7 +6,6 @@
     <AssemblyName>estranged-workshop</AssemblyName>
     <Authors>Alan Edwardes</Authors>
     <Product>Estranged: Act I Workshop Tool</Product>
-    <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>
