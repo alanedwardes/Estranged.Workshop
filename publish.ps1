@@ -1,6 +1,6 @@
 Remove-Item publish -Recurse
 
-function Publish-Workshop { dotnet publish src/Estranged.Workshop/Estranged.Workshop.csproj -r $args -c Release -o $PSScriptRoot/publish/$args }
+function Publish-Workshop { dotnet publish src/Estranged.Workshop/Estranged.Workshop.csproj --self-contained --runtime $args --configuration Release --output $PSScriptRoot/publish/$args }
 
 Publish-Workshop linux-x64
 Publish-Workshop osx-x64
